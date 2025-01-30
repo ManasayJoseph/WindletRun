@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">HomeButtonTrigger</string>
+    <string name="searchhint">Search...</string>
+    <string name="followuphint">Ask a follow up</string>
+</resources>
