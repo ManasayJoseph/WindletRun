@@ -1,65 +1,18 @@
-//package com.example.homebuttontrigger
-//
-//import android.content.Intent
-//import android.os.Bundle
-//import android.view.inputmethod.EditorInfo
-//import android.widget.EditText
-//import android.widget.ImageButton
-//import android.widget.TextView
-//import androidx.appcompat.app.AppCompatActivity
-//
-//class SearchResultsActivity : AppCompatActivity() {
-//    lateinit var searchBar: EditText
-//    lateinit var exitButton: ImageButton
-//
-//    override fun onCreate(savedInstanceState: Bundle?) {
-//        super.onCreate(savedInstanceState)
-//        setContentView(R.layout.activity_search_results)
-//        searchBar = findViewById(R.id.searchBar)
-//        exitButton = findViewById(R.id.closeButton)
-//        // Null checks
-//        exitButton.setOnClickListener {
-//            finishAffinity()
-//        }
-//
-//        searchBar.setOnEditorActionListener { _, actionId, _ ->
-//            handleSearchAction(actionId)
-//        }
-//
-//        val searchQuery = intent.getStringExtra("SEARCH_QUERY")
-//        val searchResultText: TextView = findViewById(R.id.searchResultText)
-//        searchResultText.text = "Results for: $searchQuery" // Placeholder for future results
-//    }
-//    private fun handleSearchAction(actionId: Int): Boolean {
-//        if (actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_ACTION_SEARCH) {
-//            val inputText = searchBar.text.toString()
-//            if (inputText.isNotBlank()) {
-//                val intent = Intent(this, SearchResultsActivity::class.java)
-//                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK) // Clears the overlay and starts fresh
-//                intent.putExtra("SEARCH_QUERY", inputText)
-//                startActivity(intent)
-//            }
-//            return true
-//        } else {
-//            return false
-//        }
-//    }
-//}
+
 package com.example.homebuttontrigger
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.google.ai.client.generativeai.GenerativeModel
-import com.google.ai.client.generativeai.type.BlockThreshold
-import com.google.ai.client.generativeai.type.GenerationConfig
-import com.google.ai.client.generativeai.type.HarmCategory
-import com.google.ai.client.generativeai.type.SafetySetting
-import com.google.ai.client.generativeai.type.Tool
+import com.example.homebuttontrigger.utils.FunctionHandler
+import retrofit2.Response
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -72,18 +25,14 @@ class SearchResultsActivity : AppCompatActivity() {
 
     private val scope = CoroutineScope(Dispatchers.Main)
 
-    private val model = GenerativeModel(
-        modelName = "gemini-2.0-flash-exp", // Corrected parameter name
-        apiKey = "AIzaSyB3ndlmFIak9UlraZbcehwXTjcFZAMPv8Q"
-    )
-    private val chat = model.startChat() // Fixed function name
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search_results)
 
         searchBar = findViewById(R.id.searchBar)
         exitButton = findViewById(R.id.closeButton)
-        searchResultText = findViewById(R.id.searchResultText)
+//        searchResultText = findViewById(R.id.searchResultText)
         followupBar = findViewById(R.id.followUpBar)
 
         exitButton.setOnClickListener { finishAffinity() }
@@ -118,17 +67,85 @@ class SearchResultsActivity : AppCompatActivity() {
 
 
         val searchQuery = intent.getStringExtra("SEARCH_QUERY")
-        searchResultText.text = "Results for: $searchQuery"
+//        searchResultText.text = "Results for: $searchQuery"
 
         scope.launch {
-            val searchResults = fetchSearchResults(searchQuery ?: "")
-            searchResultText.text = searchResults
+            val (summary, full) = fetchSearchResults(searchQuery?: "Invalid Input (respond with invalid input)")
+            findViewById<TextView>(R.id.tvSummary).text = summary
+            findViewById<TextView>(R.id.tvFull).text = full
         }
+
     }
 
 
-    private suspend fun fetchSearchResults(query: String): String {
-        val response = chat.sendMessage(query) // Added await()
-        return response.text ?: "No response"
+    private suspend fun fetchSearchResults(query: String): Pair<String, String> {
+//        // Create the request with structured output
+//        val request = GeminiRequest(
+//            contents = listOf(
+//                Content(
+//                    parts = listOf(Part(text = query))
+//                )
+//            ),
+//            tools = listOf(Tool(googleSearch = GoogleSearch())),
+//            generationConfig = GenerationConfig(
+//                responseSchema = ResponseSchema(
+//                    properties = SchemaProperties(
+//                        Whole = SchemaArrayProperty(
+//                            items = SchemaItem(
+//                                properties = ItemProperties(
+//                                    Summarized = SchemaProperty("string"),
+//                                    Full = SchemaProperty("string")
+//                                )
+//                            )
+//                        )
+//                    )
+//                )
+//            )
+//        )
+//
+//        // Call the Gemini API
+//        val response = GeminiClient.api.generateContent("AIzaSyB3ndlmFIak9UlraZbcehwXTjcFZAMPv8Q", request)
+//
+//        // Handle the response
+//        return if (response.isSuccessful) {
+//            val structuredResponse = response.body()?.data?.Whole?.firstOrNull()
+//            if (structuredResponse != null) {
+//                // Return structured output (summary and full answer)
+//                Pair(structuredResponse.Summarized, structuredResponse.Full)
+//            } else {
+//                // Fallback to unstructured response
+//                val fallbackText = response.body()?.candidates?.firstOrNull()?.content?.parts?.firstOrNull()?.text
+//                Pair(fallbackText ?: "No summary", fallbackText ?: "No details")
+//            }
+//        } else {
+//            // Handle API errors
+//            Pair(response.toString(), "API Error: ${response.errorBody()?.string()}")
+//        }
+        val result = FunctionHandler.handleQuery(query)
+        if (query.contains("selfie")) {
+            fun openInstagram() {
+                val packageName = "com.instagram.android"
+                val launchIntent = packageManager.getLaunchIntentForPackage(packageName)
+                Log.w("SearchResultsActivity", launchIntent.toString())
+                if (launchIntent != null) {
+                    // It's good practice to add FLAG_ACTIVITY_NEW_TASK
+//                   launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    startActivity(launchIntent)
+                } else {
+                    Log.e("App", "Launch intent is null for package: $packageName")
+                    Toast.makeText(this, "Instagram cannot be launched.", Toast.LENGTH_SHORT).show()
+                    // Optionally redirect to Play Store if needed:
+                    val playStoreIntent = Intent(Intent.ACTION_VIEW).apply {
+                        data =
+                            Uri.parse("https://play.google.com/store/apps/details?id=$packageName")
+                    }
+                    startActivity(playStoreIntent)
+                }
+            }
+            openInstagram()
+        }
+        Log.w("SearchResultsActivity", result.first)
+
+        return Pair(result.first, result.second)
     }
 }
