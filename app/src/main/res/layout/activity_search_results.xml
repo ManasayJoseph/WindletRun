@@ -77,7 +77,6 @@
         android:paddingTop="5dp"
         android:paddingRight="20dp"
         android:paddingBottom="5dp"
-        android:text="First President of Us"
         android:textColor="@color/white"
         android:textColorHint="@color/text"
         android:textSize="18sp"
@@ -152,16 +151,36 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/google" />
 
-            <TextView
-                android:id="@+id/searchResultText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+            <ScrollView
+                android:id="@+id/resultMini"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
-                android:text="Loading results..."
-                android:textColor="@color/white"
-                android:textSize="18sp"
-                app:layout_constraintStart_toStartOf="@+id/ProviderIcon"
-                app:layout_constraintTop_toBottomOf="@+id/ProviderName" />
+
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/rounded_edittext"
+                android:backgroundTint="@color/stroke"
+                android:fillViewport="true"
+                android:padding="10dp"
+                app:layout_constraintBottom_toTopOf="@+id/followUpBar"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/ProviderName">
+
+                <TextView
+                    android:id="@+id/searchResultText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="0dp"
+                    android:layout_marginBottom="0dp"
+                    android:text="Loading results..."
+                    android:textColor="@color/white"
+                    android:textSize="18sp" />
+            </ScrollView>
+
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.cardview.widget.CardView>

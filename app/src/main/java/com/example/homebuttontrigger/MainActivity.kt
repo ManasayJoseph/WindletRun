@@ -10,6 +10,8 @@ import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
+    lateinit var searchBar: EditText
+    lateinit var exitButton: ImageButton
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -21,29 +23,29 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Verify resources exist
-        val searchBar: EditText? = findViewById(R.id.searchBar)
-        val exitButton: ImageButton? = findViewById(R.id.closeButton)
-
+        searchBar = findViewById(R.id.searchBar)
+        exitButton= findViewById(R.id.closeButton)
         // Null checks
-        exitButton?.setOnClickListener {
+        exitButton.setOnClickListener {
             finishAffinity()
         }
-
-        searchBar?.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_ACTION_SEARCH) {
-                val inputText = searchBar.text.toString()
-                if (inputText.isNotBlank()) {
-                    val intent = Intent(this, SearchResultsActivity::class.java)
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK) // Clears the overlay and starts fresh
-                    intent.putExtra("SEARCH_QUERY", inputText)
-                    startActivity(intent)
-                }
-                true
-            } else {
-                false
-            }
+        searchBar.setOnEditorActionListener { _, actionId, _ ->
+            handleSearchAction(actionId)
         }
-
+    }
+    private fun handleSearchAction(actionId: Int): Boolean {
+        if (actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_ACTION_SEARCH) {
+            val inputText = searchBar.text.toString()
+            if (inputText.isNotBlank()) {
+                val intent = Intent(this, SearchResultsActivity::class.java)
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK) // Clears the overlay and starts fresh
+                intent.putExtra("SEARCH_QUERY", inputText)
+                startActivity(intent)
+            }
+            return true
+        } else {
+            return false
+        }
     }
 
 }
