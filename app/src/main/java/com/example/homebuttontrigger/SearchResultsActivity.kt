@@ -12,7 +12,6 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.homebuttontrigger.utils.FunctionHandler
-import retrofit2.Response
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -122,28 +121,7 @@ class SearchResultsActivity : AppCompatActivity() {
 //            Pair(response.toString(), "API Error: ${response.errorBody()?.string()}")
 //        }
         val result = FunctionHandler.handleQuery(query)
-        if (query.contains("selfie")) {
-            fun openInstagram() {
-                val packageName = "com.instagram.android"
-                val launchIntent = packageManager.getLaunchIntentForPackage(packageName)
-                Log.w("SearchResultsActivity", launchIntent.toString())
-                if (launchIntent != null) {
-                    // It's good practice to add FLAG_ACTIVITY_NEW_TASK
-//                   launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    startActivity(launchIntent)
-                } else {
-                    Log.e("App", "Launch intent is null for package: $packageName")
-                    Toast.makeText(this, "Instagram cannot be launched.", Toast.LENGTH_SHORT).show()
-                    // Optionally redirect to Play Store if needed:
-                    val playStoreIntent = Intent(Intent.ACTION_VIEW).apply {
-                        data =
-                            Uri.parse("https://play.google.com/store/apps/details?id=$packageName")
-                    }
-                    startActivity(playStoreIntent)
-                }
-            }
-            openInstagram()
-        }
+
         Log.w("SearchResultsActivity", result.first)
 
         return Pair(result.first, result.second)
