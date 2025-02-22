@@ -9,6 +9,7 @@ import android.widget.EditText
 import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
 
+
 class MainActivity : AppCompatActivity() {
     lateinit var searchBar: EditText
     lateinit var exitButton: ImageButton
