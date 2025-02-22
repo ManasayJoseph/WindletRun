@@ -13,12 +13,7 @@ import com.example.homebuttontrigger.network.ResponseProperties
 import com.example.homebuttontrigger.network.ResponseSchema
 import com.example.homebuttontrigger.network.SchemaArray
 import com.example.homebuttontrigger.network.SchemaProperty
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
 
-//import com.example.homebuttontrigger.network.Tool
-//import com.example.homebuttontrigger.network.GoogleSearch
 
 object FunctionHandler {
     private const val API_KEY = "AIzaSyB3ndlmFIak9UlraZbcehwXTjcFZAMPv8Q"
@@ -92,7 +87,7 @@ object FunctionHandler {
 
     private suspend fun handleElse(query: String): Pair<String, String> {
         val classificationPrompt = """
-            Categorize the "$query". Determine if it requires searching the internet, performing device actions, or both.
+            Categorize "$query". Determine if it requires searching the internet, performing device actions, or both.
             
             - If a search is required, return it as "SearchQuery".
             - If one or more actions (function calls) are required, return them in "actions".
