@@ -16,7 +16,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var exitButton: ImageButton
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        ActivityContextHolder.currentActivity = this
+        ActivityContextHolder.currentActivity  = this
         // Safe check for layout
         try {
             setContentView(R.layout.activity_main)
@@ -52,7 +52,11 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        ActivityContextHolder.currentActivity = null // Clear reference to prevent leaks
+        if (ActivityContextHolder.currentActivity == this) {
+            ActivityContextHolder.currentActivity = null
+        }
+        Log.w("OnDevice", "onDestroy called main")
     }
+
 
 }

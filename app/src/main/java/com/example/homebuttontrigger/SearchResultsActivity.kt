@@ -1,16 +1,13 @@
 
 package com.example.homebuttontrigger
 
-import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.homebuttontrigger.utils.ActivityContextHolder
 import com.example.homebuttontrigger.utils.FunctionHandler
@@ -32,6 +29,7 @@ class SearchResultsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search_results)
         ActivityContextHolder.currentActivity = this
+        Log.w("OnDevice", "onCreate called ${ActivityContextHolder.currentActivity}")
 
 
         searchBar = findViewById(R.id.searchBar)
@@ -103,6 +101,18 @@ class SearchResultsActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        Log.w("OnDevice", "onDestroy called search ${ActivityContextHolder.currentActivity}")
         ActivityContextHolder.currentActivity = null
+        Log.w("OnDevice", "onDestroy called search ${ActivityContextHolder.currentActivity}")
+
     }
+    override fun onResume() {
+        super.onResume()
+        Log.w("OnDevice", "onResume called ${ActivityContextHolder.currentActivity}")
+
+        ActivityContextHolder.currentActivity = this
+        Log.w("OnDevice", "onResume called after ${ActivityContextHolder.currentActivity}")
+
+    }
+
 }

@@ -1,224 +1,3 @@
-//package com.example.homebuttontrigger.utils
-//
-//import android.util.Log
-//import com.example.homebuttontrigger.network.ActionProperties
-//import com.example.homebuttontrigger.network.ActionSchema
-//import com.example.homebuttontrigger.network.ArgumentSchema
-//import com.example.homebuttontrigger.network.GeminiClient
-//import com.example.homebuttontrigger.network.GeminiRequest
-//import com.example.homebuttontrigger.network.Content
-//import com.example.homebuttontrigger.network.GenerationConfig
-//import com.example.homebuttontrigger.network.Part
-//import com.example.homebuttontrigger.network.ResponseProperties
-//import com.example.homebuttontrigger.network.ResponseSchema
-//import com.example.homebuttontrigger.network.SchemaArray
-//import com.example.homebuttontrigger.network.SchemaProperty
-//import kotlinx.serialization.Serializable
-//import kotlinx.serialization.decodeFromString
-//import kotlinx.serialization.json.Json
-//
-//@Serializable
-//data class ActionResponse(
-//    val SearchQuery: String? = null,
-//    val actions: List<Action>? = null // Make this field optional
-//)
-//
-//@Serializable
-//data class Action(
-//    val Function: String,
-//    val Arguments: List<String>
-//)
-//
-//val json = Json { ignoreUnknownKeys = true } // Add this line
-//
-//fun parseJson(jsonString: String): ActionResponse? {
-//    return try {
-//        json.decodeFromString(jsonString) // Use the configured Json instance
-//    } catch (e: Exception) {
-//        Log.e("OnDevice", "JSON Parsing Error: ${e.message}")
-//        null
-//    }
-//}
-//
-//
-//object FunctionHandler {
-//    private const val API_KEY = "AIzaSyB3ndlmFIak9UlraZbcehwXTjcFZAMPv8Q"
-//
-//    //    suspend fun handleQuery(query: String): Pair<String, String> {
-////        val category = classifyQuery(query)
-////        Log.w("FunctionHandler","category: $category")
-////        return when (category) {
-////            "function_calling" -> Pair(handleFunctionCall(query), handleFunctionCall(query))
-////            else -> handleGoogleSearch(query)
-////        }
-////    }
-//    suspend fun handleQuery(query: String): Pair<String, String> {
-//        var result = singleIntent(query)
-//
-//        if (result != null) {
-//            Log.i("handleQuery", "Processed command: ${result.first} with value: ${result.second}")
-//            // Do something if the command is valid
-//            return result
-//
-//        } else {
-//            Log.i("handleQuery", "Unknown command received")
-//            result = handleElse(query)
-//            Log.w("OnDevice","result as $result")
-//            return result ?: Pair("Error", "Unknown command")
-//        }
-//    }
-//
-//
-//
-//    private fun singleIntent(query: String): Pair<String, String>? {
-//        val onDevice = OnDevice()
-//        val words = query.split(" ")
-//
-//        when (words[0].lowercase()) {
-//            "call" -> {
-//                if (words.size == 2) {
-//                    onDevice.call(words[1])
-//                    return Pair("call", words[1])
-//                } else {
-//                    Log.i("InvalidFormat", "Invalid call format. Use: call <name>")
-//                }
-//            }
-//
-//            "open" -> {
-//                if (words.size == 2) {
-//                    onDevice.openApp(words[1])
-//                    return Pair("open", words[1])
-//                } else {
-//                    Log.i("InvalidFormat", "Invalid open format. Use: open <app_name>")
-//                }
-//            }
-//
-//            "send" -> {
-//                if (words.size >= 3) {
-//                    val message = words.subList(1, words.size - 1).joinToString(" ")
-//                    val name = words.last()
-//                    onDevice.send(name, message)
-//                    return Pair("send", "$message to $name")
-//                } else {
-//                    Log.i("InvalidFormat", "Invalid send format. Use: send <message> <name>")
-//                }
-//            }
-//
-//            else -> {
-//                Log.i("SingleIntent", "Unknown command")
-//                return null  // Return null for unknown command
-//            }
-//        }
-//        return null
-//    }
-//
-//    private suspend fun handleElse(query: String): Pair<String, String> {
-//        val classificationPrompt = """
-//            Categorize "$query". Determine if it requires searching the internet, performing device actions, or both.
-//
-//            - If a search is required, return it as "SearchQuery".
-//            - Any Chat with the app is considered SearchQuery, e.g. Hello, How are you?, How's the weather today?
-//            - If one or more actions (function calls) are required, return them in "actions".
-//            - If an action (like sending a message) needs a search result as an argument, use "{{SearchResult}}" instead of the full query text.
-//            - If there are no actions required, omit "actions" from the response.
-//            - If no search is required, omit "SearchQuery" from the response.
-//
-//            Available functions:
-//            - Call(name)
-//            - Open(application)
-//            - Send(Message, Medium=SMS, Contact)
-//            - Timer(time:seconds)
-//
-//            Ensure:
-//            - Extract search-related parts separately under "SearchQuery".
-//            - Replace search-dependent arguments with "{{SearchResult}}".
-//        """.trimIndent()
-//        Log.w("FunctionHandler", "classifyQuery: $classificationPrompt")
-//        val request = GeminiRequest(
-//            contents = listOf(
-//                Content(parts = listOf(Part(text = classificationPrompt)))
-//            ),
-//            generationConfig = GenerationConfig(
-//                responseSchema = ResponseSchema(
-//                    properties = ResponseProperties(
-//                        SearchQuery = SchemaProperty(type = "string"),
-//                        actions = SchemaArray(
-//                            type = "array",
-//                            items = ActionSchema(
-//                                type = "object",
-//                                properties = ActionProperties(
-//                                    Function = SchemaProperty(type = "string"),
-//                                    Arguments = ArgumentSchema(
-//                                        type = "array",
-//                                        items = SchemaProperty(type = "string")
-//                                    )
-//                                )
-//                            )
-//                        )
-//                    )
-//                )
-//            )
-//        )
-//        Log.w("OnDevice", "classifyQuery: $request")
-//        val response = GeminiClient.api.generateContent(API_KEY, request)
-//        Log.w("OnDevice", " categorization ${response.body()?.candidates?.firstOrNull()?.content?.parts?.firstOrNull()?.text}")
-//
-//        val jsonResponse = response.body()?.candidates?.firstOrNull()?.content?.parts?.firstOrNull()?.text
-//        Log.w("OnDevice", "Raw JSON Response: $jsonResponse")
-//        val parsedResponse = jsonResponse?.let { parseJson(it) }
-//        Log.w("OnDevice", "Parsed Response: $parsedResponse")
-//
-//        return Pair("hello",query)
-//    }
-//
-////    private suspend fun classifyQuery(query: String): String {
-////        val classificationPrompt = """
-////            Classify the following question into one of these categories:
-////            - "google_search": For questions requiring real-time or factual answers.
-////            - "function_calling": For device-specific actions like calling, opening apps, etc.
-////
-////            Question: $query
-////            Category:
-////        """.trimIndent()
-////        Log.w("FunctionHandler", "classifyQuery: $classificationPrompt")
-////        val request = GeminiRequest(
-////            contents = listOf(Content(parts = listOf(Part(text = classificationPrompt))))
-////        )
-////
-////        val response = GeminiClient.api.generateContent(API_KEY, request)
-////        Log.w("FunctionHandler", "classifyQuery: $response")
-////        Log.w("FunctionHandler",response.body()?.candidates?.firstOrNull()?.content?.parts?.firstOrNull()?.text
-////            ?.lowercase()?.trim() ?: "google_search")
-////        return response.body()?.candidates?.firstOrNull()?.content?.parts?.firstOrNull()?.text
-////            ?.lowercase()?.trim() ?: "google_search"
-////    }
-//
-////    private fun handleFunctionCall(query: String): String {
-////        return when {
-////            query.contains("call") -> "Calling ${query.replace("call", "").trim()}..."
-////            query.contains("open") -> "Opening ${query.replace("open", "").trim()}..."
-////            query.contains("selfie") -> "SELFIE"
-////            else -> "Error: Function not found"
-////        }
-////    }
-//
-////    private suspend fun handleGoogleSearch(query: String): Pair<String, String> {
-////        val request = GeminiRequest(
-////            contents = listOf(Content(parts = listOf(Part(text = query)))),
-////            tools = listOf(Tool(googleSearch = GoogleSearch()))
-////        )
-////
-////        val response = GeminiClient.api.generateContent(API_KEY, request)
-////        return if (response.isSuccessful) {
-////            val answer = response.body()?.candidates?.firstOrNull()?.content?.parts?.firstOrNull()?.text
-////                ?: "Error: Empty response"
-////            Pair(answer.take(40), answer)
-////        } else {
-////            Pair("Error", "API Error: ${response.errorBody()?.string()}")
-////        }
-////    }
-//}
-
 package com.example.homebuttontrigger.utils
 
 import android.util.Log
@@ -255,12 +34,11 @@ val SYSTEM_INSTRUCTIONS = """
         Rules:
         1. Chats with the bot are considered to be searchQuery(s). Eg.: "Hello", "How are you"?
         2. If a search is required, return it as "SearchQuery".
-        3. If one or more actions (function calls) are required, return them in "actions".
+        3. If one or more actions (function calls) are required, return them in "actions".  
         4. If an action (like sending a message) needs a search result as an argument, use "{{SearchResult}}" instead of the full query text.
         5. If there are no actions required, omit "actions" from the response.
         6. If no search is required, omit "SearchQuery" from the response.
-        7. There can't be a situation where there are neither searchQuery nor action. One of Two is required.   
-8
+        7. There can't be a situation where there are neither searchQuery nor action. One of Two is required.
         
         Available functions with their syntax:
         - Call(Contact,Medium ) // Call("Alan","Phone" ) Only Phone and whatsapp is available 
@@ -352,31 +130,31 @@ object FunctionHandler {
     }
 
     private suspend fun handleElse(query: String): Pair<String, String> {
-
-
         val jsonResponse = generateStructuredOutput(query)
         Log.w("OnDevice", "Raw JSON Response: $jsonResponse")
 
+        var (summarized, full) = Pair("No Search Query", "No actions to perform")
+        var returns = Pair(summarized, full) // Initialize `returns` here
+
         if (jsonResponse != null) {
-            // Step 1: Process SearchQuery
+            if (jsonResponse.SearchQuery != null) {
+                val id = fetchSearchResult(query)
+                summarized = id.first
+                full = id.second
+                returns = Pair(summarized, full)
+                Log.w("OnDevice", "Search Result: $full")
+            } else {
+                Log.w("OnDevice", "No Search Query")
+            }
 
-            val (summarized, full) = fetchSearchResult(jsonResponse.SearchQuery.toString())
-
-
-            Log.w("Ondevice", "Search Result: $full")
-            // Step 2: Process Actions
             jsonResponse.actions?.forEach { action ->
                 executeAction(action, full)
             }
-
-            return Pair(
-                summarized,
-                full
-            )
-        } else {
-            return Pair("Error", "Failed to parse response")
         }
+
+        return returns
     }
+
 
     private suspend fun generateStructuredOutput(query: String): ActionResponse? {
 
@@ -424,8 +202,7 @@ object FunctionHandler {
                 parts = listOf(Part(text = SEARCH_INSTRUCTIONS))
             ),
             tools = listOf(Tool(googleSearch = GoogleSearch())),
-
-            )
+        )
         val response = GeminiClient.api.generateContentWithGrounding(API_KEY, request)
         val result = response.body()?.candidates?.firstOrNull()?.content?.parts?.firstOrNull()?.text
         val summarized = result?.substringAfter("Summarized: ")?.substringBefore("Full:")?.trim()

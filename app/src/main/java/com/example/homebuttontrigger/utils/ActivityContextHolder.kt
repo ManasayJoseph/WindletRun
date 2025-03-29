@@ -12,3 +12,4 @@ object ActivityContextHolder {
             activityReference = if (activity != null) WeakReference(activity) else null
         }
 }
+
