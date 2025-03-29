@@ -65,7 +65,7 @@
         android:layout_height="60dp"
         android:layout_marginStart="24dp"
         android:layout_marginEnd="24dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="24dp"
         android:background="@drawable/rounded_edittext"
         android:drawableStart="@drawable/google"
         android:drawableEnd="@drawable/search"
@@ -85,16 +85,42 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent" />
 
+    <EditText
+        android:id="@+id/followUpBar"
+        android:layout_width="0dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="24dp"
+        android:background="@drawable/rounded_edittext"
+        android:drawableStart="@drawable/google"
+        android:drawableEnd="@drawable/search"
+        android:drawablePadding="16dp"
+        android:gravity="center"
+        android:hint="@string/followuphint"
+        android:inputType="text"
+        android:paddingLeft="20dp"
+        android:paddingTop="5dp"
+        android:paddingRight="20dp"
+        android:paddingBottom="5dp"
+        android:textColor="@color/white"
+        android:textColorHint="@color/text"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent" />
+
     <androidx.cardview.widget.CardView
         android:id="@+id/Results"
         android:layout_width="0dp"
         android:layout_height="200dp"
         android:layout_marginStart="24dp"
         android:layout_marginEnd="24dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="24dp"
         android:background="@drawable/rounded_edittext"
         app:cardCornerRadius="16dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/followUpBar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent">
@@ -105,29 +131,6 @@
             android:layout_height="match_parent"
             android:background="@drawable/rounded_edittext"
             android:padding="0dp">
-
-            <EditText
-                android:id="@+id/followUpBar"
-                android:layout_width="0dp"
-                android:layout_height="60dp"
-                android:background="@drawable/rounded_edittext"
-                android:drawableStart="@drawable/google"
-                android:drawableEnd="@drawable/search"
-                android:drawablePadding="16dp"
-                android:gravity="center"
-                android:hint="@string/followuphint"
-                android:inputType="text"
-                android:paddingLeft="20dp"
-                android:paddingTop="5dp"
-                android:paddingRight="20dp"
-                android:paddingBottom="5dp"
-                android:textColor="@color/white"
-                android:textColorHint="@color/text"
-                android:textSize="18sp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent" />
 
             <TextView
                 android:id="@+id/ProviderName"
@@ -153,47 +156,41 @@
 
             <ScrollView
                 android:id="@+id/resultMini"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
+                android:layout_width="329dp"
+                android:layout_height="125dp"
                 android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="16dp"
 
                 android:layout_marginEnd="8dp"
-                android:layout_marginBottom="8dp"
                 android:background="@drawable/rounded_edittext"
                 android:backgroundTint="@color/stroke"
                 android:fillViewport="true"
                 android:padding="10dp"
-                app:layout_constraintBottom_toTopOf="@+id/followUpBar"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/ProviderName">
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/tvSummary"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="?attr/selectableItemBackground"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:padding="8dp"
-                        android:text="oh my body"
-                        android:textSize="16sp"
-                        android:visibility="visible"
-                        tools:visibility="visible" />
 
                     <TextView
                         android:id="@+id/tvFull"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:padding="8dp"
-                        android:text="hey how are you "
                         android:textSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/tvSummary"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@color/white"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:padding="8dp"
+                        android:textSize="16sp" />
 
                 </LinearLayout>
             </ScrollView>

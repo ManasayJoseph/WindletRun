@@ -8,6 +8,7 @@ import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
+import com.example.homebuttontrigger.utils.ActivityContextHolder
 
 
 class MainActivity : AppCompatActivity() {
@@ -15,7 +16,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var exitButton: ImageButton
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        ActivityContextHolder.currentActivity = this
         // Safe check for layout
         try {
             setContentView(R.layout.activity_main)
@@ -47,6 +48,11 @@ class MainActivity : AppCompatActivity() {
         } else {
             return false
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        ActivityContextHolder.currentActivity = null // Clear reference to prevent leaks
     }
 
 }

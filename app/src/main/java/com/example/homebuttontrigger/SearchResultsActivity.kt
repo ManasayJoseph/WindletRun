@@ -1,6 +1,7 @@
 
 package com.example.homebuttontrigger
 
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -11,7 +12,9 @@ import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.homebuttontrigger.utils.ActivityContextHolder
 import com.example.homebuttontrigger.utils.FunctionHandler
+import com.example.homebuttontrigger.utils.OnDevice
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -21,13 +24,15 @@ class SearchResultsActivity : AppCompatActivity() {
     lateinit var exitButton: ImageButton
     lateinit var searchResultText: TextView
     lateinit var followupBar: TextView
+    val onDevice = OnDevice()
 
     private val scope = CoroutineScope(Dispatchers.Main)
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search_results)
+        ActivityContextHolder.currentActivity = this
+
 
         searchBar = findViewById(R.id.searchBar)
         exitButton = findViewById(R.id.closeButton)
@@ -77,53 +82,27 @@ class SearchResultsActivity : AppCompatActivity() {
     }
 
 
+
     private suspend fun fetchSearchResults(query: String): Pair<String, String> {
-//        // Create the request with structured output
-//        val request = GeminiRequest(
-//            contents = listOf(
-//                Content(
-//                    parts = listOf(Part(text = query))
-//                )
-//            ),
-//            tools = listOf(Tool(googleSearch = GoogleSearch())),
-//            generationConfig = GenerationConfig(
-//                responseSchema = ResponseSchema(
-//                    properties = SchemaProperties(
-//                        Whole = SchemaArrayProperty(
-//                            items = SchemaItem(
-//                                properties = ItemProperties(
-//                                    Summarized = SchemaProperty("string"),
-//                                    Full = SchemaProperty("string")
-//                                )
-//                            )
-//                        )
-//                    )
-//                )
-//            )
-//        )
-//
-//        // Call the Gemini API
-//        val response = GeminiClient.api.generateContent("AIzaSyB3ndlmFIak9UlraZbcehwXTjcFZAMPv8Q", request)
-//
-//        // Handle the response
-//        return if (response.isSuccessful) {
-//            val structuredResponse = response.body()?.data?.Whole?.firstOrNull()
-//            if (structuredResponse != null) {
-//                // Return structured output (summary and full answer)
-//                Pair(structuredResponse.Summarized, structuredResponse.Full)
-//            } else {
-//                // Fallback to unstructured response
-//                val fallbackText = response.body()?.candidates?.firstOrNull()?.content?.parts?.firstOrNull()?.text
-//                Pair(fallbackText ?: "No summary", fallbackText ?: "No details")
-//            }
-//        } else {
-//            // Handle API errors
-//            Pair(response.toString(), "API Error: ${response.errorBody()?.string()}")
-//        }
+
         val result = FunctionHandler.handleQuery(query)
 
         Log.w("SearchResultsActivity", result.first)
 
         return Pair(result.first, result.second)
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        onDevice.handlePermissionResult(requestCode, grantResults)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        ActivityContextHolder.currentActivity = null
     }
 }
